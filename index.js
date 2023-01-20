@@ -1,5 +1,4 @@
 const cheerio = require('cheerio');
-const request = require('request');
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 
@@ -8,7 +7,7 @@ const writeStream = fs.createWriteStream('post.csv');
 
 writeStream.write(`Title, Year, Rating, Image \n`)
 
-const baseUrl = '[insert_url_here]';
+const baseUrl = 'https://www.imdb.com/list/ls058721118/?sort=release_date,asc&st_dt=&mode=detail';
 
 async function start(url) {
     const browser = await puppeteer.launch();
@@ -39,7 +38,7 @@ async function getPageCount() {
 (async () => {
     console.log('Retrieving number of pages...');
     const pageCount = await getPageCount();
-    console.log(`Found ${pageCount} pages.\nScraping...`);
+    console.log(`Found ${pageCount} page(s).\nScraping...`);
     for (let i = 1; i <= pageCount; i++) {
         start(`${baseUrl}&page=${i}`).then(() => {
             const $ = cheerio.load(fs.readFileSync('source.html'));
@@ -57,7 +56,7 @@ async function getPageCount() {
                 }
         
                 let image = $(el).children('.lister-item-image').children('a').children('img').attr('loadlate');
-                if (image == undefined) {
+                if (typeof image === 'undefined') {
                     image = $(el).children('.lister-item-image').children('a').children('img').attr('src');
                 }
         
